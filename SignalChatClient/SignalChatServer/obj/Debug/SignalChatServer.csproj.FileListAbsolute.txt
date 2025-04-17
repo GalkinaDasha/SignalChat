@@ -29,3 +29,5 @@ H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\obj\
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\obj\Debug\SignalCh.11E85200.Up2Date
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\obj\Debug\SignalChatServer.exe
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\obj\Debug\SignalChatServer.pdb
+H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\bin\Debug\Microsoft.Owin.Host.HttpListener.dll
+H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatServer\bin\Debug\Microsoft.Owin.Host.HttpListener.xml

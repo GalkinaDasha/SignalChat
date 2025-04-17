@@ -42,7 +42,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="ImageButtonStyle" TargetType="Button" BasedOn="{StaticResource SendButtonStyle}">
+        <Style x:Key="ImageButtonStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -123,21 +123,20 @@
                     </Grid.ColumnDefinitions>
                     <Rectangle x:Name="ParticipantRct" Fill="{DynamicResource PrimaryHueMidBrush}"
                                Visibility="Hidden"/>
-                    <!--Pic-->
-                    <Grid Grid.Column="1" Margin="6" SnapsToDevicePixels="True">
-                        <Grid.OpacityMask>
-                            <VisualBrush Visual="{Binding ElementName=ClipEllipse}"/>
-                        </Grid.OpacityMask>
-                        <Ellipse x:Name="ClipEllipse" Fill="White"/>
-                        <Image Source="{Binding Photo, Converter={StaticResource ByteBmpSrcConverter},
-                            TargetNullValue={StaticResource BlankImage}}" Stretch="UniformToFill"/>
-                    </Grid>
                     <!--Name-->
                     <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left"
                                Margin="5,0" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
                                Text="{Binding Name}" SnapsToDevicePixels="True"/>
 
                     <!--New Message icon-->
+                    <Ellipse Name="NewMessageIcon" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                             Width="8" Height="8" Visibility="Hidden">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#FF3177A4"/>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
 
                     <!--Online-->
                     <Ellipse Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" 
@@ -164,11 +163,7 @@
             </Border>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding HasSentNewMessage}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsTyping}" Value="True">
-                    <Setter Property="Visibility" Value="Hidden"/>
-                    <Setter Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="NewMessageIcon" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=IsSelected,
                     RelativeSource={RelativeSource FindAncestor, AncestorType=ListBoxItem}}" Value="true">
@@ -208,9 +203,6 @@
                     <Setter TargetName="MessageBorder" Property="Background" Value="#BBDEFB"/>
                     <Setter TargetName="MessageBorder" Property="BorderBrush" Value="#64B5F6"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Picture}" Value="{x:Null}">
-                    <Setter TargetName="ImageMessageGrid" Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
                 <DataTrigger Binding="{Binding Message}" Value="{x:Null}">
                     <Setter TargetName="MessageTxtBlock" Property="Visibility" Value="Collapsed"/>
                     <Setter TargetName="MessageBorder" Property="MaxWidth" Value="320"/>
@@ -239,6 +231,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
+        <Label>
+            Список контактов
+        </Label>
         <Border Grid.RowSpan="2" BorderThickness="0,0,1,0" SnapsToDevicePixels="True"
                 BorderBrush="{DynamicResource MaterialDesignDivider}">
             <ListBox ItemsSource="{Binding Participants}" 
@@ -266,26 +261,25 @@
             </ItemsControl.Template>
         </ItemsControl>
 
-        <Border Grid.Row="1" Grid.Column="1" SnapsToDevicePixels="True"
-                BorderBrush="{DynamicResource MaterialDesignDivider}">
+        <Border Grid.Row="1" Grid.Column="1" SnapsToDevicePixels="True">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
                 <!--Message-->
-                <Border Margin="10,10,0,10" MaxHeight="80"
-                        BorderThickness="1" BorderBrush="{DynamicResource MaterialDesignDivider}">
-                    <Grid>
+                <Border Margin="10,10,20,10" MaxHeight="80"
+                        BorderThickness="1" >
+                    <Grid Margin="0,0,-1,0" Cursor="">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
                         <!--Text-->
-                        <TextBox x:Name="MessageTxtBox" BorderBrush="Transparent"
+                        <TextBox x:Name="MessageTxtBox" BorderBrush="DarkBlue"
                                  TextWrapping="Wrap" AcceptsReturn="True" CaretBrush="#7F000000"
                                  VerticalScrollBarVisibility="Auto"
-                                 Text="{Binding TextMessage, UpdateSourceTrigger=PropertyChanged}">
+                                 Text="{Binding TextMessage, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="KeyUp">
                                     <i:InvokeCommandAction Command="{Binding TypingCommand}"/>
@@ -295,9 +289,20 @@
                     </Grid>
                 </Border>
                 <!--Send-->
-                <Button x:Name="SendButton" Grid.Column="1" Margin="10"
-                        Style="{DynamicResource SendButtonStyle}"
-                        Command="{Binding SendTextMessageCommand}"/>
+                <Button x:Name="SendButton" Margin="15,5,10,15"
+                        BorderBrush="Black"
+                        Cursor="Hand"
+                        Command="{Binding SendTextMessageCommand}" RenderTransformOrigin="0.499,-1.139" Grid.Column="1">
+                    <Button.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="-23.314"/>
+                            <TranslateTransform X="-12.942" Y="2.699"/>
+                        </TransformGroup>
+                    </Button.RenderTransform>
+                    Отправить
+                </Button>
             </Grid>
         </Border>
     </Grid>

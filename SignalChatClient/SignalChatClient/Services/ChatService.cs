@@ -14,7 +14,6 @@ namespace SignalChatClient
     public class ChatService : IChatService
     {
         public event Action<string, string, MessageType> NewTextMessage;
-        public event Action<string, byte[], MessageType> NewImageMessage;
         public event Action<string> ParticipantDisconnected;
         public event Action<User> ParticipantLoggedIn;
         public event Action<string> ParticipantLoggedOut;
@@ -37,9 +36,7 @@ namespace SignalChatClient
             hubProxy.On<string>("ParticipantDisconnection", (n) => ParticipantDisconnected?.Invoke(n));
             hubProxy.On<string>("ParticipantReconnection", (n) => ParticipantReconnected?.Invoke(n));
             hubProxy.On<string, string>("BroadcastTextMessage", (n, m) => NewTextMessage?.Invoke(n, m, MessageType.Broadcast));
-            hubProxy.On<string, byte[]>("BroadcastPictureMessage", (n, m) => NewImageMessage?.Invoke(n, m, MessageType.Broadcast));
             hubProxy.On<string, string>("UnicastTextMessage", (n, m) => NewTextMessage?.Invoke(n, m, MessageType.Unicast));
-            hubProxy.On<string, byte[]>("UnicastPictureMessage", (n, m) => NewImageMessage?.Invoke(n, m, MessageType.Unicast));
             hubProxy.On<string>("ParticipantTyping", (p) => ParticipantTyping?.Invoke(p));
 
             connection.Reconnecting += Reconnecting;
