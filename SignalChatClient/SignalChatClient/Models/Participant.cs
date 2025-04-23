@@ -27,6 +27,19 @@ namespace SignalChatClient.Models
             set { _hasSentNewMessage = value; OnPropertyChanged(); }
         }
 
+        // свойство для проверки, выбран ли участник для рассылки уведомлений
+        private bool _isChosen;
+        public bool IsChosen
+        {
+            get { return _isChosen; }
+            set { _isChosen = value; OnPropertyChanged(); }
+        }
+
         public Participant() { Chatter = new ObservableCollection<ChatMessage>(); }
+
+        public void ToggleChosen()
+        {
+            IsChosen = !IsChosen;
+        }
     }
 }

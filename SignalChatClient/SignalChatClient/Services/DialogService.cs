@@ -11,17 +11,6 @@ namespace SignalChatClient.Services
 {
     public class DialogService : IDialogService
     {
-        /*
-        public string ShowInputDialog(string message)
-        {
-            var inputDialog = new InputDialog(message);
-            if (inputDialog.ShowDialog() == true) // если пользователь нажал "ОК"
-            {
-                return inputDialog.InputValue; // возвращаем введенное значение
-            }
-            return null; // возвращаем null, если пользователь нажал "Отмена"
-        }*/
-
         public (string InputValue, bool IsAdmin) ShowInputDialog(string message)
         {
             var inputDialog = new InputDialog(message);

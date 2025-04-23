@@ -20,8 +20,6 @@ namespace SignalChatClient.ViewModels
         private IChatService chatService;
         private IDialogService dialogService;
         private TaskFactory ctxTaskFactory;
-        private const int MAX_IMAGE_WIDTH = 150;
-        private const int MAX_IMAGE_HEIGHT = 150;
 
         private string _userName;
         public string UserName
@@ -419,12 +417,57 @@ namespace SignalChatClient.ViewModels
         private void ParticipantLogin(User u)
         {
             var ptp = Participants.FirstOrDefault(p => string.Equals(p.Name, u.Name));
-            if (_isLoggedIn && ptp == null)
+            if (_isLoggedIn && ptp == null) // добавляем нового участника
             {
                 ctxTaskFactory.StartNew(() => Participants.Add(new Participant
                 {
                     Name = u.Name
                 })).Wait();
+
+                // уведомление для всех выбранных участников
+                NotifyChosenParticipants(u.Name, "вошел в систему.");
+            }
+            else if (ptp != null) // юзер найден, обновляем его статус входа
+            {
+                ptp.IsLoggedIn = true;
+                // уведомление для всех выбранных участников
+                NotifyChosenParticipants(ptp.Name, "снова вошел в систему.");
+            }
+        }
+
+        private ICommand _toggleUserChosenCommand;
+        public ICommand ToggleUserChosenCommand
+        {
+            get
+            {
+                return _toggleUserChosenCommand ?? (_toggleUserChosenCommand = new RelayCommand<Participant>(ToggleParticipantChosen));
+            }
+        }
+
+        public void ToggleParticipantChosen(Participant participant)
+        {
+            // переключаем состояние IsChosen, уведомляем об этом
+            participant.ToggleChosen();
+
+            if (participant.IsChosen)
+            {
+                dialogService.ShowNotification($"Пользователь '{participant.Name}' добавлен в список уведомлений.");
+            }
+            else
+            {
+                dialogService.ShowNotification($"Пользователь '{participant.Name}' удален из списка уведомлений.");
+            }
+        }
+
+        // уведомление выбранных участников
+        private void NotifyChosenParticipants(string userName, string action)
+        {
+            foreach (var participant in Participants)
+            {
+                if (participant.IsChosen)
+                {
+                    dialogService.ShowNotification($"Пользователь '{userName}' {action}");
+                }
             }
         }
 
@@ -432,6 +475,9 @@ namespace SignalChatClient.ViewModels
         {
             var person = Participants.Where((p) => string.Equals(p.Name, name)).FirstOrDefault();
             if (person != null) person.IsLoggedIn = false;
+
+            // уведомление для всех выбранных участников
+            NotifyChosenParticipants(name, "вышел из системы.");
         }
 
         private void ParticipantReconnection(string name)
