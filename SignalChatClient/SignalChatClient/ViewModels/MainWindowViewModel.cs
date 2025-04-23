@@ -425,13 +425,13 @@ namespace SignalChatClient.ViewModels
                 })).Wait();
 
                 // уведомление для всех выбранных участников
-                NotifyChosenParticipants(u.Name, "вошел в систему.");
+                NotifyChosenParticipants(ptp, "вошел в чат.");
             }
             else if (ptp != null) // юзер найден, обновляем его статус входа
             {
                 ptp.IsLoggedIn = true;
                 // уведомление для всех выбранных участников
-                NotifyChosenParticipants(ptp.Name, "снова вошел в систему.");
+                NotifyChosenParticipants(ptp, "снова вошел в чат.");
             }
         }
 
@@ -460,14 +460,11 @@ namespace SignalChatClient.ViewModels
         }
 
         // уведомление выбранных участников
-        private void NotifyChosenParticipants(string userName, string action)
+        private void NotifyChosenParticipants(Participant participant, string action)
         {
-            foreach (var participant in Participants)
+            if (participant.IsChosen)
             {
-                if (participant.IsChosen)
-                {
-                    dialogService.ShowNotification($"Пользователь '{userName}' {action}");
-                }
+                dialogService.ShowNotification($"Пользователь '{participant.Name}' {action}");
             }
         }
 
@@ -477,7 +474,7 @@ namespace SignalChatClient.ViewModels
             if (person != null) person.IsLoggedIn = false;
 
             // уведомление для всех выбранных участников
-            NotifyChosenParticipants(name, "вышел из системы.");
+            NotifyChosenParticipants(person, "вышел из чата.");
         }
 
         private void ParticipantReconnection(string name)
