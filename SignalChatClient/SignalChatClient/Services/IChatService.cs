@@ -18,14 +18,16 @@ namespace SignalChatClient.Services
         event Action ConnectionReconnected;
         event Action ConnectionClosed;
         event Action<string, string, MessageType> NewTextMessage;
-        event Action<string> ParticipantTyping;
 
         Task ConnectAsync();
         Task<List<User>> LoginAsync(string name);
+        Task<List<User>> RegistrationAsync(string name);
         Task LogoutAsync();
 
         Task SendBroadcastMessageAsync(string msg);
         Task SendUnicastMessageAsync(string recepient, string msg);
-        Task TypingAsync(string recepient);
+
+        Task<int> AddUserAsync(string name, bool isadmin);
+        Task<int> RemoveUserAsync(string name);
     }
 }

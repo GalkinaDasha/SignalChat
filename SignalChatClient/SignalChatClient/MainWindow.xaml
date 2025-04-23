@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:SignalChatClient"
         mc:Ignorable="d"
         DataContext="{Binding Source={StaticResource VMLocator}, Path=MainVM}"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Чат" Height="450" Width="800">
     <i:Interaction.Triggers>
         <i:EventTrigger>
             <i:InvokeCommandAction Command="{Binding ConnectCommand}"/>

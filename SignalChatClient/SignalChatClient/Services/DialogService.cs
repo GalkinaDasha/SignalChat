@@ -5,23 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Windows;
+using SignalChatClient.Views;
 
 namespace SignalChatClient.Services
 {
     public class DialogService : IDialogService
     {
-        public string OpenFile(string caption, string filter = "All files (*.*)|*.*")
+        /*
+        public string ShowInputDialog(string message)
         {
-            OpenFileDialog diag = new OpenFileDialog();
-            diag.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            diag.Title = caption;
-            diag.Filter = filter;
-            diag.CheckFileExists = true;
-            diag.CheckPathExists = true;
-            diag.RestoreDirectory = true;
+            var inputDialog = new InputDialog(message);
+            if (inputDialog.ShowDialog() == true) // если пользователь нажал "ОК"
+            {
+                return inputDialog.InputValue; // возвращаем введенное значение
+            }
+            return null; // возвращаем null, если пользователь нажал "Отмена"
+        }*/
 
-            if (diag.ShowDialog() == true) return diag.FileName;
-            return string.Empty;
+        public (string InputValue, bool IsAdmin) ShowInputDialog(string message)
+        {
+            var inputDialog = new InputDialog(message);
+            bool isConfirmed = inputDialog.ShowDialog() == true; // если пользователь нажал "ОК"
+
+            bool isAdminFlag = inputDialog.AdminFlag.IsChecked == true; // Проверяем, что CheckBox отмечен
+
+            return (isConfirmed ? inputDialog.InputValue : null, isAdminFlag);
+        }
+
+        public bool ShowConfirmationDialog(string message)
+        {
+            // Используем MessageBox для отображения диалогового окна подтверждения
+            var result = MessageBox.Show(message, "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            return result == MessageBoxResult.Yes; // возвращаем true, если пользователь нажал "Да"
         }
 
         public bool ShowConfirmationRequest(string message, string caption = "")

@@ -8,8 +8,9 @@ namespace SignalChatClient.Services
 {
     public interface IDialogService
     {
+        (string InputValue, bool IsAdmin) ShowInputDialog(string message);
+        bool ShowConfirmationDialog(string message);
         void ShowNotification(string message, string caption = "");
         bool ShowConfirmationRequest(string message, string caption = "");
-        string OpenFile(string caption, string filter = @"All files (*.*)|*.*");
     }
 }

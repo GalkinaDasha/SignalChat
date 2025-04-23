@@ -21,7 +21,9 @@ namespace SignalChatClient
         public event Action ConnectionReconnecting;
         public event Action ConnectionReconnected;
         public event Action ConnectionClosed;
-        public event Action<string> ParticipantTyping;
+
+        public event Action<User> ParticipantAdded;
+        public event Action<string> ParticipantRemoved;
 
         private IHubProxy hubProxy;
         private HubConnection connection;
@@ -37,7 +39,9 @@ namespace SignalChatClient
             hubProxy.On<string>("ParticipantReconnection", (n) => ParticipantReconnected?.Invoke(n));
             hubProxy.On<string, string>("BroadcastTextMessage", (n, m) => NewTextMessage?.Invoke(n, m, MessageType.Broadcast));
             hubProxy.On<string, string>("UnicastTextMessage", (n, m) => NewTextMessage?.Invoke(n, m, MessageType.Unicast));
-            hubProxy.On<string>("ParticipantTyping", (p) => ParticipantTyping?.Invoke(p));
+
+            hubProxy.On<User>("ParticipantAdded", (u) => ParticipantAdded?.Invoke(u));
+            hubProxy.On<string>("ParticipantRemoved", (name) => ParticipantRemoved?.Invoke(name));
 
             connection.Reconnecting += Reconnecting;
             connection.Reconnected += Reconnected;
@@ -67,6 +71,11 @@ namespace SignalChatClient
             return await hubProxy.Invoke<List<User>>("Login", new object[] { name });
         }
 
+        public async Task<List<User>> RegistrationAsync(string name)
+        {
+            return await hubProxy.Invoke<List<User>>("Registration", new object[] { name });
+        }
+
         public async Task LogoutAsync()
         {
             await hubProxy.Invoke("Logout");
@@ -76,14 +85,22 @@ namespace SignalChatClient
         {
             await hubProxy.Invoke("BroadcastTextMessage", msg);
         }
+
         public async Task SendUnicastMessageAsync(string recepient, string msg)
         {
             await hubProxy.Invoke("UnicastTextMessage", new object[] { recepient, msg });
         }
 
-        public async Task TypingAsync(string recepient)
+        public async Task<int> AddUserAsync(string name, bool isadmin)
         {
-            await hubProxy.Invoke("Typing", recepient);
+            int PerenRez = await hubProxy.Invoke<int>("AddUser", name, isadmin);
+            return PerenRez;
+        }
+
+        public async Task<int> RemoveUserAsync(string name)
+        {
+            int PerenRez = await hubProxy.Invoke<int>("RemoveUser", name);
+            return PerenRez;
         }
     }
 }

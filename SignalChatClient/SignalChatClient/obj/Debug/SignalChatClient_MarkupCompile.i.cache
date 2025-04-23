@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\App.xaml
-31833817556
+4-2091963428
 
-221867160273
+23-1489929695
 1581846323861
-MainWindow.xaml;Views\ChatView.xaml;Views\LoginView.xaml;
+MainWindow.xaml;Views\ChatView.xaml;Views\InputDialog.xaml;Views\LoginView.xaml;
 
-False
+True
 

@@ -93,3 +93,5 @@ H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\Debug\SignalChatClient.exe
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\Debug\SignalChatClient.pdb
 H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\Debug\App.baml
+H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\Debug\Views\InputDialog.baml
+H:\Programs\test_prog\Angstrem\SignalChat\SignalChatClient\SignalChatClient\obj\Debug\Views\InputDialog.g.cs

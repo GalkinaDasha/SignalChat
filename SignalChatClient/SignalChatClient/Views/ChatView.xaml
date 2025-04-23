@@ -224,14 +224,14 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="49"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Label>
+        <Label HorizontalAlignment="Center" FontSize="16" Width="142">
             Список контактов
         </Label>
         <Border Grid.RowSpan="2" BorderThickness="0,0,1,0" SnapsToDevicePixels="True"
@@ -241,8 +241,27 @@
                      ItemContainerStyle="{DynamicResource ParticipantsListBoxItemStyle}"
                      SelectedItem="{Binding SelectedParticipant}"                     
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Height="320"/>
         </Border>
+        <!--AddUser-->
+        <Button x:Name="AddUserButton"
+                Cursor="Hand"
+                Command="{Binding AddUserCommand}" 
+                VerticalAlignment="Top"
+                Grid.Column="0"
+                Grid.Row="1" Height="20">
+            Добавить пользователя
+        </Button>
+        <!--DeleteUser-->
+        <Button x:Name="DellUserButton"
+                Cursor="Hand"
+                Command="{Binding RemoveUserCommand}" 
+                VerticalAlignment="Top"
+                Grid.Column="0"
+                Grid.Row="1" Height="20" Margin="0,25,0,0">
+            Удалить пользователя
+        </Button>
 
         <!--Messages-->
         <ItemsControl x:Name="MessagesItemsCtrl" Grid.Column="1" Margin="0,5,0,0" 

@@ -11,9 +11,11 @@ namespace SignalChatServer
         void ParticipantDisconnection(string name);
         void ParticipantReconnection(string name);
         void ParticipantLogin(User client);
+        void ParticipantRegistration(User client);
         void ParticipantLogout(string name);
         void BroadcastTextMessage(string sender, string message);
         void UnicastTextMessage(string sender, string message);
-        void ParticipantTyping(string sender);
+        void ParticipantAdded(User client);
+        void ParticipantRemoved(string name);
     }
 }

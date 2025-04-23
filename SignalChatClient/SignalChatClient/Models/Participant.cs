@@ -27,13 +27,6 @@ namespace SignalChatClient.Models
             set { _hasSentNewMessage = value; OnPropertyChanged(); }
         }
 
-        private bool _isTyping;
-        public bool IsTyping
-        {
-            get { return _isTyping; }
-            set { _isTyping = value; OnPropertyChanged(); }
-        }
-
         public Participant() { Chatter = new ObservableCollection<ChatMessage>(); }
     }
 }

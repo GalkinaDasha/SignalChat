@@ -6,13 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.SignalR.Client.Hubs;
 using SignalChatClient.Commands;
 using SignalChatClient.Enums;
 using SignalChatClient.Models;
 using SignalChatClient.Services;
 using System.Windows.Input;
-using System.Drawing;
 using System.Reactive.Linq;
 
 namespace SignalChatClient.ViewModels
@@ -54,7 +52,10 @@ namespace SignalChatClient.ViewModels
             set
             {
                 _selectedParticipant = value;
-                if (SelectedParticipant.HasSentNewMessage) SelectedParticipant.HasSentNewMessage = false;
+                if (_selectedParticipant != null)
+                {
+                    if (_selectedParticipant.HasSentNewMessage) _selectedParticipant.HasSentNewMessage = false;
+                }
                 OnPropertyChanged();
             }
         }
@@ -151,7 +152,7 @@ namespace SignalChatClient.ViewModels
                 }
                 else
                 {
-                    dialogService.ShowNotification("Username is already in use");
+                    dialogService.ShowNotification("Пользователь или уже вошел или не зарегистрирован. Обратитесь к администратору.");
                     return false;
                 }
 
@@ -162,6 +163,46 @@ namespace SignalChatClient.ViewModels
         private bool CanLogin()
         {
             return !string.IsNullOrEmpty(UserName) && UserName.Length >= 2 && IsConnected;
+        }
+        #endregion
+
+        #region Registration Command
+        private bool CanRegistration()
+        {
+            return !string.IsNullOrEmpty(UserName) && UserName.Length >= 2 && IsConnected;
+        }
+
+        private ICommand _registrationCommand;
+        public ICommand RegistrationCommand
+        {
+            get
+            {
+                return _registrationCommand ?? (_registrationCommand =
+                    new RelayCommandAsync(() => Registration(), (o) => CanRegistration()));
+            }
+        }
+
+        private async Task<bool> Registration()
+        {
+            try
+            {
+                List<User> users = new List<User>();
+                users = await chatService.RegistrationAsync(_userName);
+                if (users != null)
+                {
+                    users.ForEach(u => Participants.Add(new Participant { Name = u.Name }));
+                    UserMode = UserModes.Chat;
+                    IsLoggedIn = true;
+                    return true;
+                }
+                else
+                {
+                    dialogService.ShowNotification("Ошибка регистрации. Обратитесь к администратору.");
+                    return false;
+                }
+
+            }
+            catch (Exception) { return false; }
         }
         #endregion
 
@@ -190,33 +231,6 @@ namespace SignalChatClient.ViewModels
         private bool CanLogout()
         {
             return IsConnected && IsLoggedIn;
-        }
-        #endregion
-
-        #region Typing Command
-        private ICommand _typingCommand;
-        public ICommand TypingCommand
-        {
-            get
-            {
-                return _typingCommand ?? (_typingCommand =
-                    new RelayCommandAsync(() => Typing(), (o) => CanUseTypingCommand()));
-            }
-        }
-
-        private async Task<bool> Typing()
-        {
-            try
-            {
-                await chatService.TypingAsync(SelectedParticipant.Name);
-                return true;
-            }
-            catch (Exception) { return false; }
-        }
-
-        private bool CanUseTypingCommand()
-        {
-            return (SelectedParticipant != null && SelectedParticipant.IsLoggedIn);
         }
         #endregion
 
@@ -258,6 +272,131 @@ namespace SignalChatClient.ViewModels
         {
             return (!string.IsNullOrEmpty(TextMessage) && IsConnected &&
                 _selectedParticipant != null && _selectedParticipant.IsLoggedIn);
+        }
+        #endregion
+
+        #region Add User Command
+        private ICommand _addUserCommand;
+        public ICommand AddUserCommand
+        {
+            get
+            {
+                return _addUserCommand ?? (_addUserCommand =
+                    new RelayCommandAsync(() => AddUser (), (o) => CanAddUser ()));
+            }
+        }
+
+        private async Task<bool> AddUser()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(UserName) || !IsLoggedIn)
+                {
+                    dialogService.ShowNotification("Вы должны быть авторизованы для добавления пользователей.");
+                    return false;
+                }
+
+                // получение кортежа
+                var (inputValue, isAdmin) = dialogService.ShowInputDialog("Введите имя пользователя для добавления!:");
+
+                if (!string.IsNullOrEmpty(inputValue))
+                {
+                    int rez = await chatService.AddUserAsync(inputValue, isAdmin); // метод для добавления пользователя на сервере
+
+                    switch (rez)
+                    {
+                        case 1:
+                            dialogService.ShowNotification($"Пользователь '{inputValue}' успешно добавлен.");
+                            break;
+                        case 0:
+                            dialogService.ShowNotification($"Произошла ошибка при добавлении пользователя '{inputValue}'.");
+                            break;
+                        case 2:
+                            dialogService.ShowNotification($"Недостаточно прав для добавления пользователя '{inputValue}'.");
+                            break;
+                        case 3:
+                            dialogService.ShowNotification($"Пользователь '{inputValue}' уже существует.");
+                            break;
+                        default:
+                            dialogService.ShowNotification($"Произошла ошибка при добавлении пользователя '{inputValue}'.");
+                            break;
+                    }
+
+                    //Participants.Add(new Participant { Name = newUserName });
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                dialogService.ShowNotification($"Ошибка при добавлении пользователя: {ex.Message}");
+            }
+            return false;
+        }
+
+        private bool CanAddUser()
+        {
+            return IsLoggedIn; // Можно добавить дополнительные проверки, если необходимо
+        }
+        #endregion
+
+        #region RemoveUserCommand
+        private ICommand _removeUserCommand;
+        public ICommand RemoveUserCommand
+        {
+            get
+            {
+                return _removeUserCommand ?? (_removeUserCommand =
+                    new RelayCommandAsync(() => RemoveUser(), (o) => CanRemoveUser()));
+            }
+        }
+
+        private async Task<bool> RemoveUser()
+        {
+            try
+            {
+                if (SelectedParticipant == null || !IsLoggedIn)
+                {
+                    dialogService.ShowNotification("Вы должны выбрать пользователя для удаления.");
+                    return false;
+                }
+
+                var confirm = dialogService.ShowConfirmationDialog($"Вы уверены, что хотите удалить пользователя {SelectedParticipant.Name}?");
+                if (confirm)
+                {
+                    int rez = await chatService.RemoveUserAsync(SelectedParticipant.Name); // метод для удаления пользователя на сервере
+
+                    switch (rez)
+                    {
+                        case 1:
+                            dialogService.ShowNotification($"Пользователь '{SelectedParticipant.Name}' успешно удален.");
+                            break;
+                        case 0:
+                            dialogService.ShowNotification($"Произошла ошибка при удалении пользователя '{SelectedParticipant.Name}'.");
+                            break;
+                        case 2:
+                            dialogService.ShowNotification($"Недостаточно прав для удаления пользователя '{SelectedParticipant.Name}'.");
+                            break;
+                        default:
+                            dialogService.ShowNotification($"Произошла ошибка при удалении пользователя '{SelectedParticipant.Name}'.");
+                            break;
+                    }
+
+                    Participants.Remove(SelectedParticipant);
+                    SelectedParticipant = null; // сбросить выбор
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                dialogService.ShowNotification($"Ошибка при удалении пользователя: {ex.Message}");
+            }
+            return false;
+        }
+
+        private bool CanRemoveUser()
+        {
+            return SelectedParticipant != null && IsLoggedIn; // Можно добавить дополнительные проверки, если необходимо
         }
         #endregion
 
@@ -326,16 +465,6 @@ namespace SignalChatClient.ViewModels
                 }
             });
         }
-
-        private void ParticipantTyping(string name)
-        {
-            var person = Participants.Where((p) => string.Equals(p.Name, name)).FirstOrDefault();
-            if (person != null && !person.IsTyping)
-            {
-                person.IsTyping = true;
-                Observable.Timer(TimeSpan.FromMilliseconds(1500)).Subscribe(t => person.IsTyping = false);
-            }
-        }
         #endregion
 
         public MainWindowViewModel(IChatService chatSvc, IDialogService diagSvc)
@@ -348,7 +477,6 @@ namespace SignalChatClient.ViewModels
             chatSvc.ParticipantLoggedOut += ParticipantDisconnection;
             chatSvc.ParticipantDisconnected += ParticipantDisconnection;
             chatSvc.ParticipantReconnected += ParticipantReconnection;
-            chatSvc.ParticipantTyping += ParticipantTyping;
             chatSvc.ConnectionReconnecting += Reconnecting;
             chatSvc.ConnectionReconnected += Reconnected;
             chatSvc.ConnectionClosed += Disconnected;
